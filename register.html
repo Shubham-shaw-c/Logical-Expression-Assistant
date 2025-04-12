@@ -3,36 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - AI Project</title>
+    <title>Register - Logical Expression Assistant</title>
     <link rel="stylesheet" href="static/css/AI_Project.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="register-container">
-            <h2><i class="fas fa-user-plus"></i> Register</h2>
-            <div id="message" class="message"></div>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password:</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
-                </div>
-                <button type="button" onclick="register()" class="submit-btn">Register</button>
-            </form>
-            <p>Already have an account? <a href="login.html">Login here</a></p>
+    <div class="register-container">
+        <h2>Register</h2>
+        <div id="message" class="message"></div>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
         </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+        <button onclick="register()" class="submit-btn">Register</button>
+        <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
     </div>
 
     <script>
@@ -40,8 +35,23 @@
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
             const messageDiv = document.getElementById('message');
+
+            // Validate all fields are filled
+            if (!username || !email || !password || !confirmPassword) {
+                messageDiv.textContent = 'Please fill in all fields';
+                messageDiv.className = 'message error';
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                messageDiv.textContent = 'Please enter a valid email address';
+                messageDiv.className = 'message error';
+                return;
+            }
 
             // Validate passwords match
             if (password !== confirmPassword) {
@@ -84,6 +94,14 @@
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 register();
+            }
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'chat.html';
             }
         });
     </script>
