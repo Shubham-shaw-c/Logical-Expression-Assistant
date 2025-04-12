@@ -3,34 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Smart Home Assistant</title>
-    <link rel="stylesheet" href="/static/css/AI_Project.css">
+    <title>Logical Expression Assistant</title>
+    <link rel="stylesheet" href="static/css/AI_Project.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <h1>Login</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-message">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
-        {% endwith %}
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        <div class="register-link">
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+        <h1><i class="fas fa-brain"></i> Logical Expression Assistant</h1>
+        
+        <div class="input-section">
+            <input type="text" id="userInput" placeholder="Enter your condition (e.g., 'sleeping', 'cooking', 'fridge')">
+            <button onclick="processInput()"><i class="fas fa-robot"></i> Process</button>
+        </div>
+
+        <div class="output-section">
+            <div id="output"></div>
+        </div>
+
+        <div class="examples">
+            <h3>Example Conditions:</h3>
+            <ul>
+                <li>sleeping</li>
+                <li>cooking</li>
+                <li>fridge</li>
+            </ul>
         </div>
     </div>
+
+    <script>
+        const conditionActions = {
+            'sleeping': {
+                message: 'Since you are going to sleep:',
+                actions: [
+                    'lights are turned off',
+                    'windows are closed',
+                    'the alarm is set for 5 o\'clock',
+                    'air conditioner is turned on (if room temperature is above 28°C)'
+                ]
+            },
+            'cooking': {
+                message: 'Since you are cooking:',
+                actions: [
+                    'Spotify shifts from lo-fi to energetic beats',
+                    'kitchen lights are adjusted to optimal brightness',
+                    'exhaust fan is turned on'
+                ]
+            },
+            'fridge': {
+                message: 'Fridge Inventory Update:',
+                actions: [
+                    getRandomFoodItem() + ' expires tomorrow',
+                    'suggesting recipes based on available ingredients',
+                    'displaying current temperature: 4°C'
+                ]
+            }
+        };
+
+        const foodItems = [
+            'oat milk',
+            'bread',
+            'butter',
+            'yogurt',
+            'cheese',
+            'eggs',
+            'vegetables',
+            'fruits',
+            'meat',
+            'fish'
+        ];
+
+        function getRandomFoodItem() {
+            return foodItems[Math.floor(Math.random() * foodItems.length)];
+        }
+
+        function processInput() {
+            const input = document.getElementById('userInput').value.toLowerCase().trim();
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+
+            if (conditionActions[input]) {
+                const condition = conditionActions[input];
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${condition.message}`;
+                outputDiv.appendChild(messageDiv);
+
+                condition.actions.forEach(action => {
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'action';
+                    actionDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${action}`;
+                    outputDiv.appendChild(actionDiv);
+                });
+            } else {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Invalid condition. Please try: sleeping, cooking, or fridge`;
+                outputDiv.appendChild(errorDiv);
+            }
+        }
+
+        // Add event listener for Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processInput();
+            }
+        });
+    </script>
 </body>
 </html> 
