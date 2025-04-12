@@ -11,6 +11,7 @@
     <div class="container">
         <div class="login-container">
             <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+            <div id="message" class="message"></div>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">Username:</label>
@@ -20,34 +21,39 @@
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <button type="submit">Login</button>
+                <button type="button" onclick="login()" class="submit-btn">Login</button>
             </form>
             <p>Don't have an account? <a href="register.html">Register here</a></p>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
+            
             // Get users from localStorage
             const users = JSON.parse(localStorage.getItem('users')) || [];
-
-            // Find user with matching username and password
-            const user = users.find(user => 
-                user.username === username && user.password === password
-            );
-
+            
+            // Find user
+            const user = users.find(u => u.username === username && u.password === password);
+            
             if (user) {
-                // Save current user to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                
-                // Redirect to chat page
+                // Store logged in user
+                localStorage.setItem('currentUser', username);
+                // Redirect to chat
                 window.location.href = 'chat.html';
             } else {
-                alert('Invalid username or password');
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = 'Invalid username or password';
+                messageDiv.className = 'message error';
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
             }
         });
     </script>
