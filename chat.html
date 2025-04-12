@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Chat</title>
+    <link rel="stylesheet" href="static/css/AI_Project.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2><i class="fas fa-robot"></i> AI Assistant</h2>
+            <div class="header-controls">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+                <button class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Initial example message -->
+            <div class="message assistant">
+                <i class="fas fa-robot"></i>
+                <div class="message-content">
+                    <p>Welcome! Click the menu button to see available conditions.</p>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <button class="menu-button" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <input type="text" id="userInput" placeholder="Type your condition here...">
+            <button onclick="processInput()" id="sendButton"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="startVoiceInput()" id="voiceButton"><i class="fas fa-microphone"></i></button>
+        </div>
+    </div>
+
+    <!-- Conditions Menu -->
+    <div class="conditions-menu" id="conditionsMenu">
+        <div class="menu-header">
+            <h3>Available Conditions</h3>
+            <button onclick="toggleMenu()" class="close-menu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="condition-buttons">
+            <button onclick="setCondition('sleeping')" class="condition-btn">sleeping</button>
+            <button onclick="setCondition('cooking')" class="condition-btn">cooking</button>
+            <button onclick="setCondition('fridge')" class="condition-btn">fridge</button>
+            <button onclick="setCondition('morning')" class="condition-btn">morning</button>
+            <button onclick="setCondition('evening')" class="condition-btn">evening</button>
+            <button onclick="setCondition('party')" class="condition-btn">party</button>
+            <button onclick="setCondition('study')" class="condition-btn">study</button>
+            <button onclick="setCondition('workout')" class="condition-btn">workout</button>
+            <button onclick="setCondition('raining')" class="condition-btn">raining outside</button>
+            <button onclick="setCondition('hot')" class="condition-btn">it's hot</button>
+            <button onclick="setCondition('cold')" class="condition-btn">it's cold</button>
+        </div>
+    </div>
+
+    <script>
+        let recognition;
+        let isListening = false;
+        const voiceButton = document.getElementById('voiceButton');
+        const audio = new Audio('static/audio/action.mp3');
+
+        // Menu toggle function
+        function toggleMenu() {
+            const menu = document.getElementById('conditionsMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('conditionsMenu');
+            const menuButton = document.querySelector('.menu-button');
+            if (!menu.contains(event.target) && !menuButton.contains(event.target) && menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('userInput').value = transcript;
+                processInput();
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                voiceButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                isListening = false;
+                voiceButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+        }
+
+        function startVoiceInput() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser.');
+                return;
+            }
+
+            if (!isListening) {
+                recognition.start();
+                isListening = true;
+                voiceButton.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            } else {
+                recognition.stop();
+                isListening = false;
+                voiceButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            }
+        }
+
+        // Function to add message to chat
+        function addMessage(content, isUser) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user' : 'message assistant';
+            
+            if (!isUser) {
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-robot';
+                messageDiv.appendChild(icon);
+            }
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // Split content into lines and format them
+            const lines = content.split('\n');
+            lines.forEach((line, index) => {
+                if (line.trim()) {
+                    const p = document.createElement('p');
+                    p.textContent = line;
+                    messageContent.appendChild(p);
+                }
+            });
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Play sound for assistant messages
+            if (!isUser) {
+                audio.play();
+            }
+        }
+
+        // Function to process user input
+        function processInput() {
+            const userInput = document.getElementById('userInput');
+            const input = userInput.value.trim();
+            
+            if (input) {
+                // Add user message
+                addMessage(input, true);
+                
+                // Process the input and get response
+                const response = processUserInput(input);
+                
+                // Add assistant message
+                addMessage(response, false);
+                
+                // Clear input
+                userInput.value = '';
+            }
+        }
+
+        // Function to set condition from button click
+        function setCondition(condition) {
+            document.getElementById('userInput').value = condition;
+            processInput();
+            toggleMenu(); // Close menu after selection
+        }
+
+        // Function to process user input and return response
+        function processUserInput(input) {
+            const condition = input.toLowerCase();
+            
+            if (condition.includes('sleep')) {
+                return 'Since you are going to sleep:\n• lights are turned off\n• windows are closed\n• the alarm is set for 5 o\'clock\n• air conditioner is turned on (if room temperature is above 28°C)';
+            } else if (condition.includes('cook')) {
+                return 'Since you are cooking:\n• Spotify shifts from lo-fi to energetic beats\n• kitchen lights are adjusted to optimal brightness\n• exhaust fan is turned on';
+            } else if (condition.includes('fridge')) {
+                const foodItems = ['oat milk', 'bread', 'butter', 'cheese', 'yogurt', 'eggs', 'vegetables'];
+                const randomItem = foodItems[Math.floor(Math.random() * foodItems.length)];
+                return 'Fridge Inventory Update:\n• ' + randomItem + ' expires tomorrow\n• suggesting recipes based on available ingredients\n• displaying current temperature: 4°C';
+            } else if (condition.includes('morning')) {
+                return 'Good morning! Here\'s your morning routine:\n• lights gradually brighten\n• coffee machine starts brewing\n• morning playlist begins\n• curtains open automatically';
+            } else if (condition.includes('evening')) {
+                return 'Good evening! Setting up your evening environment:\n• lights dim to warm tones\n• relaxing music playlist starts\n• temperature adjusted to comfortable level';
+            } else if (condition.includes('party')) {
+                return 'Party mode activated!\n• disco lights on\n• party playlist starts\n• temperature set to cool\n• smart speakers connected';
+            } else if (condition.includes('study')) {
+                return 'Study mode activated:\n• bright white lights on\n• distraction-free music playing\n• phone notifications muted\n• room temperature optimized';
+            } else if (condition.includes('workout') || condition.includes('exercise')) {
+                return 'Workout mode activated:\n• energetic workout playlist starts\n• lights brighten for energy\n• temperature set to cool\n• water reminder activated';
+            } else if (condition.includes('rain')) {
+                return 'It\'s raining outside:\n• windows are closed\n• umbrella reminder activated\n• indoor humidity monitoring enabled\n• cozy ambient lighting activated';
+            } else if (condition.includes('hot') || condition.includes('warm')) {
+                return 'It\'s hot:\n• air conditioner turned on\n• blinds closed to block sunlight\n• fans activated\n• suggesting cold beverages';
+            } else if (condition.includes('cold') || condition.includes('cool')) {
+                return 'It\'s cold:\n• heater turned on\n• windows closed\n• suggesting hot beverages\n• cozy lighting activated';
+            } else {
+                return 'I don\'t understand that condition. Click the menu button to see available conditions.';
+            }
+        }
+
+        // Handle Enter key press
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processInput();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Add dark mode toggle function
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const toggleButton = document.querySelector('.dark-mode-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                toggleButton.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                toggleButton.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.dark-mode-toggle i').className = 'fas fa-sun';
+        }
+    </script>
+</body>
+</html>

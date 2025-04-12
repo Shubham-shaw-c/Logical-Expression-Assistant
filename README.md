@@ -1,60 +1,56 @@
-# Smart Home Assistant
+# Logical Expression Assistant
 
-A Flask-based web application that evaluates logical expressions and responds to natural language commands related to real-world actions.
+A web-based chat interface that responds to natural language commands and logical expressions with real-world actions.
 
 ## Features
 
-- User Authentication (Login/Register)
-- Logical Expression Evaluation
-- Natural Language Processing
-- Voice Input Support
-- Dark/Light Mode
-- Responsive Design
+- Natural language processing for various conditions
+- Real-time responses with action suggestions
+- Modern ChatGPT-like interface
+- Dark mode support
+- Audio feedback for actions
+- Hamburger menu for quick access to commands
 
-## Installation
+## Supported Commands
 
-1. Clone the repository:
-```bash
-git clone <your-repository-url>
-cd <repository-name>
-```
+1. **Sleeping/Going to bed**
+   - Turns off lights
+   - Closes windows
+   - Sets alarm for 5 o'clock
+   - Controls air conditioner based on temperature
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. **Cooking**
+   - Changes music to energetic beats
+   - Adjusts kitchen lights
+   - Turns on exhaust fan
 
-3. Run the application:
-```bash
-python app.py
-```
+3. **Fridge Inventory**
+   - Shows expiring food items
+   - Suggests recipes
+   - Displays temperature
 
-## Usage
+4. **Weather Related**
+   - "It's hot/warm" - Controls AC and blinds
+   - "It's cold/cool" - Manages heater and suggests hot beverages
+   - "Raining outside" - Closes windows and sends reminders
 
-1. Register a new account or login
-2. Enter conditions in natural language (e.g., "it's raining outside")
-3. View the corresponding actions
-4. Use voice input for hands-free operation
+5. **Other Conditions**
+   - Morning routine
+   - Evening settings
+   - Party mode
+   - Study mode
+   - Workout/Exercise mode
 
-## Example Conditions
+## Setup
 
-- it's raining outside
-- it's hot
-- it's cold
-- it's night
-- it's morning
-- sleeping
-- cooking
-- fridge
+1. Clone the repository
+2. Open index.html in your browser
+3. Register/Login to access the chat interface
+4. Use the hamburger menu to see available commands
 
 ## Technologies Used
 
-- Flask
-- SQLAlchemy
-- Flask-Login
-- HTML/CSS/JavaScript
-- Web Speech API
-
-## License
-
-This project is licensed under the MIT License. 
+- HTML5
+- CSS3
+- JavaScript
+- Python (for server) 
