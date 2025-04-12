@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+    <div class="container">
+        <div class="logout-link">
+            <a href="{{ url_for('logout') }}" style="color: var(--primary-color);">Logout</a>
+        </div>
+        <h1>Logical Expression Assistant</h1>
+        <div class="welcome-message">
+            Welcome! Tell me about the current condition (e.g., "it's raining outside" or "it's hot")
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <!-- Messages will be added here dynamically -->
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="expression" placeholder="Enter condition (e.g., it's raining outside)" onkeypress="handleKeyPress(event)">
+            <button onclick="evaluateExpression()">Send</button>
+            <button class="mic-button" id="micButton" onclick="toggleRecording()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="examples">
+            <h3>Example Conditions:</h3>
+            <ul>
+                <li>it's raining outside</li>
+                <li>it's hot</li>
+                <li>it's cold</li>
+                <li>it's night</li>
+                <li>it's morning</li>
+                <li>sleeping</li>
+                <li>cooking</li>
+                <li>fridge</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Theme handling
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+
+        // Speech recognition setup
+        let recognition = null;
+        let isRecording = false;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('expression').value = transcript;
+                evaluateExpression();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                addMessage('Error: Could not recognize speech. Please try again.');
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                document.getElementById('micButton').classList.remove('recording');
+            };
+        }
+
+        function toggleRecording() {
+            if (!recognition) {
+                addMessage('Error: Speech recognition is not supported in your browser.');
+                return;
+            }
+
+            if (!isRecording) {
+                recognition.start();
+                isRecording = true;
+                document.getElementById('micButton').classList.add('recording');
+            } else {
+                recognition.stop();
+                isRecording = false;
+                document.getElementById('micButton').classList.remove('recording');
+            }
+        }
+
+        function addMessage(message, isUser = false) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = message;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                evaluateExpression();
+            }
+        }
+
+        function evaluateExpression() {
+            const expression = document.getElementById('expression').value.trim();
+            if (!expression) return;
+
+            // Add user message
+            addMessage(expression, true);
+            
+            // Clear input
+            document.getElementById('expression').value = '';
+
+            fetch('/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `expression=${encodeURIComponent(expression)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    addMessage(`Error: ${data.error}`);
+                    return;
+                }
+
+                // Add condition message
+                addMessage(data.message);
+
+                // Add actions as a list
+                let actionsHtml = '<ul class="action-list">';
+                data.actions.forEach(action => {
+                    actionsHtml += `<li>${action}</li>`;
+                });
+                actionsHtml += '</ul>';
+                addMessage(actionsHtml);
+            })
+            .catch(error => {
+                addMessage('An error occurred while processing your request.');
+            });
+        }
+    </script>
+</body>
+</html> 
