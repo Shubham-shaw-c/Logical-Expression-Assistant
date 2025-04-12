@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant - Chat</title>
+    <title>Logical Expressions Assistant</title>
     <link rel="stylesheet" href="static/css/AI_Project.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h2><i class="fas fa-robot"></i> AI Assistant</h2>
+            <h2><i class="fas fa-robot"></i> Logical Expressions Assistant</h2>
             <div class="header-controls">
                 <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
                 <button class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
@@ -51,6 +51,7 @@
             <button onclick="setCondition('raining')" class="condition-btn">raining outside</button>
             <button onclick="setCondition('hot')" class="condition-btn">it's hot</button>
             <button onclick="setCondition('cold')" class="condition-btn">it's cold</button>
+            <button onclick="setCondition('thank you so much')" class="condition-btn">thank you so much</button>
         </div>
     </div>
 
@@ -207,6 +208,8 @@
                 return 'It\'s hot:\n• air conditioner turned on\n• blinds closed to block sunlight\n• fans activated\n• suggesting cold beverages';
             } else if (condition.includes('cold') || condition.includes('cool')) {
                 return 'It\'s cold:\n• heater turned on\n• windows closed\n• suggesting hot beverages\n• cozy lighting activated';
+            } else if (condition.includes('thank you') || condition.includes('thanks')) {
+                return 'You\'re welcome! I\'m here to help you:\n• Always ready to assist\n• Happy to make your life easier\n• Let me know if you need anything else\n• Have a great day!';
             } else {
                 return 'I don\'t understand that condition. Click the menu button to see available conditions.';
             }
