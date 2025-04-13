@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logical Expressions Assistant</title>
-    <link rel="stylesheet" href="static/css/AI_Project.css">
+    <link rel="stylesheet" href="static/css/AI_Project.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -51,7 +51,6 @@
             <button onclick="setCondition('raining')" class="condition-btn">raining outside</button>
             <button onclick="setCondition('hot')" class="condition-btn">it's hot</button>
             <button onclick="setCondition('cold')" class="condition-btn">it's cold</button>
-            <button onclick="setCondition('thank you so much')" class="condition-btn">thank you so much</button>
         </div>
     </div>
 
@@ -64,14 +63,29 @@
         // Menu toggle function
         function toggleMenu() {
             const menu = document.getElementById('conditionsMenu');
-            menu.classList.toggle('show');
+            if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            } else {
+                menu.classList.add('show');
+            }
         }
 
         // Close menu when clicking outside
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('conditionsMenu');
             const menuButton = document.querySelector('.menu-button');
-            if (!menu.contains(event.target) && !menuButton.contains(event.target) && menu.classList.contains('show')) {
+            const conditionButtons = document.querySelectorAll('.condition-btn');
+            
+            // Check if click is on a condition button
+            let isConditionButton = false;
+            conditionButtons.forEach(button => {
+                if (button.contains(event.target)) {
+                    isConditionButton = true;
+                }
+            });
+
+            // Don't close if clicking condition button
+            if (!menu.contains(event.target) && !menuButton.contains(event.target) && !isConditionButton && menu.classList.contains('show')) {
                 menu.classList.remove('show');
             }
         });
@@ -175,9 +189,12 @@
 
         // Function to set condition from button click
         function setCondition(condition) {
-            document.getElementById('userInput').value = condition;
-            processInput();
-            toggleMenu(); // Close menu after selection
+            const userInput = document.getElementById('userInput');
+            userInput.value = condition;
+            toggleMenu(); // Close menu first
+            setTimeout(() => {
+                processInput(); // Process after menu is closed
+            }, 100);
         }
 
         // Function to process user input and return response
@@ -208,8 +225,6 @@
                 return 'It\'s hot:\n• air conditioner turned on\n• blinds closed to block sunlight\n• fans activated\n• suggesting cold beverages';
             } else if (condition.includes('cold') || condition.includes('cool')) {
                 return 'It\'s cold:\n• heater turned on\n• windows closed\n• suggesting hot beverages\n• cozy lighting activated';
-            } else if (condition.includes('thank you') || condition.includes('thanks')) {
-                return 'You\'re welcome! I\'m here to help you:\n• Always ready to assist\n• Happy to make your life easier\n• Let me know if you need anything else\n• Have a great day!';
             } else {
                 return 'I don\'t understand that condition. Click the menu button to see available conditions.';
             }
